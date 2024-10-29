@@ -34,7 +34,7 @@ const LoadingOverlay: React.FC = () => {
           alt="Loading"
           className="mb-2"
         />
-        <p className="text-center">ProBoost v2.11</p>
+        <p className="text-center">Reboostify v2.11</p>
         <p className="text-center">Developed by - AKD</p>
        
       </div>
