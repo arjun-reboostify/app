@@ -96,7 +96,7 @@ const TodoList: React.FC = () => {
   return (
     <div style={styles.container}>
       <div style={styles.todoContainer}>
-        <h1 style={styles.heading}>To-Do List</h1>
+        <h1>ToDo</h1>
         <input
           type="text"
           value={task}
