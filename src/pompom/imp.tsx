@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Subtask {
   id: number;
@@ -22,6 +22,19 @@ const TopicLearner: React.FC = () => {
     { id: 3, title: 'Ask 10 Questions', completed: false },
     { id: 4, title: 'Write Medium Post', completed: false },
   ];
+
+  // Load topics from localStorage on mount
+  useEffect(() => {
+    const savedTopics = localStorage.getItem('topics');
+    if (savedTopics) {
+      setTopics(JSON.parse(savedTopics));
+    }
+  }, []);
+
+  // Save topics to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('topics', JSON.stringify(topics));
+  }, [topics]);
 
   const addTopic = () => {
     if (!topicName.trim()) return;
@@ -56,7 +69,7 @@ const TopicLearner: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-900  flex flex-col items-center p-6 font-sans">
+    <div className="bg-gray-900 flex flex-col items-center p-6 font-sans">
       <h1 className="text-3xl font-bold text-green-800 mb-8">Add Topics To Learn</h1>
 
       <div className="w-full max-w-md bg-black rounded-lg shadow-lg p-6 mb-6">
