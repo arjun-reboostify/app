@@ -1,81 +1,137 @@
-import { useEffect, useState } from "react";
-import { getDocs, collection, deleteDoc, doc } from "firebase/firestore";
-import { db } from "../api/firebase";
-import CreatePost from "./CreatePost";
+import React, { useState } from 'react';
 
-// Define the Post interface
-interface Author {
-  name: string;
+interface Todo {
+  id: number;
+  task: string;
+  completed: boolean;
 }
 
-interface Post {
-  id: string;
-  title: string;
-  postText: string;
-  author: Author;
-}
+const TodoList: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [task, setTask] = useState<string>('');
 
-function Blog() {
-  // Specify the type of postLists as an array of Post
-  const [postLists, setPostList] = useState<Post[]>([]);
-  const postsCollectionRef = collection(db, "posts");
-
-  // Specify the type of the id parameter
-  const deletePost = async (id: string) => {
-    const postDoc = doc(db, "posts", id);
-    await deleteDoc(postDoc);
-    // Remove the deleted post from the state
-    setPostList(postLists.filter((post) => post.id !== id));
+  const addTodo = () => {
+    if (task.trim() === '') return;
+    const newTodo: Todo = {
+      id: Date.now(),
+      task,
+      completed: false,
+    };
+    setTodos([...todos, newTodo]);
+    setTask('');
   };
 
-  useEffect(() => {
-    const getPosts = async () => {
-      const data = await getDocs(postsCollectionRef);
-      // Map the docs to the Post type
-      setPostList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id } as Post)));
-    };
+  const toggleTodo = (id: number) => {
+    setTodos(todos.map(todo =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ));
+  };
 
-    getPosts();
-  }, []);
+  const removeTodo = (id: number) => {
+    setTodos(todos.filter(todo => todo.id !== id));
+  };
+
+  const styles = {
+    container: {
+      backgroundColor: '	#303030',
+      fontFamily: 'Arial, sans-serif',
+      margin: '0',
+      padding: '0',
+    },
+    todoContainer: {
+      width: '400px',
+      margin: '0 auto',
+      background: 'black',
+      borderRadius: '8px',
+      boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+      padding: '20px',
+    },
+    heading: {
+      textAlign: 'center',
+      color: '#333',
+      marginBottom: '20px',
+    },
+    input: {
+      width: 'calc(100% - 20px)',
+      padding: '10px',
+      border: '1px solid #ccc',
+      borderRadius: '4px',
+      marginBottom: '10px',
+      transition: 'border-color 0.3s',
+    },
+    inputFocus: {
+      borderColor: '#66afe9',
+      outline: 'none',
+    },
+    button: {
+      backgroundColor: '#5cb85c',
+      color: 'black',
+      border: 'none',
+      borderRadius: '4px',
+      padding: '10px',
+      cursor: 'pointer',
+      transition: 'background-color 0.3s',
+      marginRight: '5px',
+    },
+    buttonHover: {
+      backgroundColor: '#4cae4c',
+    },
+    ul: {
+      listStyleType: 'none',
+      padding: '0',
+    },
+    li: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '10px',
+      borderBottom: '1px solid #eee',
+    },
+    completed: {
+      textDecoration: 'line-through',
+      color: '#aaa',
+    },
+  };
 
   return (
-    <>
-      <CreatePost />
-      <div className="homePage container mx-auto p-6">
-        {postLists.length === 0 ? (
-          <p className="text-center text-gray-500">No posts available</p>
-        ) : (
-          postLists.map((post) => (
-            <div
-              key={post.id}
-              className="post bg-black shadow-md rounded-lg p-6 mb-6"
-            >
-              <div className="postHeader flex justify-between items-center">
-                <div className="title">
-                  <h1 className="text-2xl font-bold text-white">
-                    {post.title}
-                  </h1>
-                </div>
-                <div className="deletePost text-red-500 hover:text-red-600 cursor-pointer">
-                  <button
-                    onClick={() => deletePost(post.id)}
-                    className="focus:outline-none"
-                    aria-label="Delete post"
-                  >
-                    &#128465;
-                  </button>
-                </div>
-              </div>
-              <div className="postTextContainer mt-4 text-white">
-                {post.postText}
-              </div>
-              <h3 className="mt-4 text-sm text-white">@{post.author.name}</h3>
-            </div>
-          ))
-        )}
+    <div style={styles.container}>
+      <div style={styles.todoContainer}>
+        <h1 style={styles.heading}>To-Do List</h1>
+        <input
+          type="text"
+          value={task}
+          onChange={(e) => setTask(e.target.value)}
+          placeholder="Add a new task"
+          style={styles.input}
+          onFocus={(e) => (e.target.style.borderColor = styles.inputFocus.borderColor)}
+          onBlur={(e) => (e.target.style.borderColor = '')}
+        />
+        <button
+          style={styles.button}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor)}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = styles.button.backgroundColor)}
+          onClick={addTodo}
+        >
+          Add
+        </button>
+        <ul style={styles.ul}>
+          {todos.map(todo => (
+            <li key={todo.id} style={styles.li}>
+              <span style={todo.completed ? styles.completed : {}}>
+                {todo.task}
+              </span>
+              <button onClick={() => toggleTodo(todo.id)} style={styles.button}>
+                {todo.completed ? 'Undo' : 'Complete'}
+              </button>
+              <button onClick={() => removeTodo(todo.id)} style={styles.button}>
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
-    </>
+    </div>
   );
-}
+};
 
-export default Blog;
+export default TodoList;

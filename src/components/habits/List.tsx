@@ -53,7 +53,7 @@ export default function List({ habits, setHabits }: { habits: Habit[]; setHabits
 
     return (
         <div className="bg-black p-6 rounded-lg shadow-lg max-w-xl mx-auto">
-            <h3 className="text-3xl font-bold text-yellow-800 mb-6">Your Actions (Repeatable to callous your mind) </h3>
+            <h3 className="text-3xl font-bold text-yellow-800 mb-6">Actions  </h3>
             <hr className="mb-6" />
             <div className="space-y-4">{renderItems()}</div>
 
