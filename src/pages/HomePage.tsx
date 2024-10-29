@@ -14,6 +14,7 @@ import Blur from "./blur";
 import Chatbot from "./Chatbot";
 import In from '../pompom/hope';
 import Chance from '../pompom/chance';
+import Mostimp from '../pompom/imp'
 export default function HomePage() {
     const [user] = useAuthState(auth);
     const [habits, setHabits] = useState<Habit[]>([]);
@@ -38,8 +39,10 @@ export default function HomePage() {
             <Chatbot/>
             <Url/>
             <Chart habits={habits} />
+        
             <Me/>
             <List habits={habits} setHabits={setHabits} />
+            <Mostimp/>
             <W/>
             <Blog/>
             
