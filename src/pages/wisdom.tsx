@@ -3,7 +3,7 @@ import soundFile from './x/b.mp3'; // Import the MP3 file for quote
 import track1 from '../pages/x/fainted.mp3';
 import musicconcentration from '../pages/x/conc.mp3';
 import track2 from '../pages/x/memory.mp3';
-import coverImage from '../components/i.jpg'; // Assuming the cover image is the same for all tracks
+import coverImage from './x/conc.jpg'; // Assuming the cover image is the same for all tracks
 
 const songsList = [
   { name: "hans zimmer", artist: 'interstellar theme', src: musicconcentration, cover: coverImage },
