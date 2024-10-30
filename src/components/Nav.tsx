@@ -111,6 +111,23 @@ export default function Nav() {
         setPasswordError("Incorrect password or something else went wrong.");
         console.error(error);
     };
+    const [showIframe, setShowIframe] = useState(false);
+  const [iframeUrl, setIframeUrl] = useState('');
+  function handleShowIframe(url: string) {
+    return function () {
+     
+        setIframeUrl(url);
+        setShowIframe(true);
+     
+    };
+  }
+  
+  
+    function handleHideIframe(): void {
+      setShowIframe(false);
+      setIframeUrl('');
+    }
+    const [menuOpen, setMenuOpen] = useState(false);
 
     return (
         <div>
@@ -118,13 +135,43 @@ export default function Nav() {
                 <h3 className="text-green-1">ReBoostify.</h3>
 
                 <div className="flex items-center space-x-2">
+                <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="sm:hidden text-green-500 px-2 py-1"
+        >
+          Menu
+        </button>
+        <div className={`flex-col sm:flex-row items-center space-x-2 sm:space-x-4 ${menuOpen ? 'flex' : 'hidden'} sm:flex`}>
                     {/* Toggle Button for Image Popup */}
+                    <button type='button' onClick={handleShowIframe('https://kearneyjohn.com')}>
+            TRY
+          </button>
+          <button type='button' onClick={handleShowIframe('https://portfolioakd.vercel.app')}>
+            BUOLDI
+          </button>
+         
                     <button
                         onClick={() => setImagePopupOpen(!imagePopupOpen)}
                         className="border-2 border-green-1 px-2 py-1 rounded-lg"
                     >
                         <p className="text-green-1">Donate</p>
                     </button>
+                    {showIframe && (
+  <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <iframe
+      src={iframeUrl}
+      title="Fullscreen Iframe"
+      className="w-[90%] h-[85%] border-none"
+    ></iframe>
+    <button
+      onClick={handleHideIframe}
+      className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded text-lg cursor-pointer z-50"
+    >
+      ✖
+    </button>
+  </div>
+)}
+
 
                     {user ? (
                         <Popover placement="bottom-end">
@@ -159,6 +206,7 @@ export default function Nav() {
                             <p className="text-green-1">Login</p>
                         </button>
                     )}
+                    </div>
                 </div>
             </div>
 
@@ -238,4 +286,5 @@ export default function Nav() {
             </Modal>
         </div>
     );
+    
 }
