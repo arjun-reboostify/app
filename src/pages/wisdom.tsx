@@ -107,7 +107,7 @@ const QuoteBox = () => {
   };
 
   return (
-    <div className="flex flex-row bg-gray-900 items-center justify-center h-50% space-x-8">
+    <div className="flex flex-col bg-gray-900 items-center justify-center h-50% space-y-8">
       <div className="bg-black p-6 rounded-lg shadow-md w-80 text-center">
         <p className="text-white mb-4">{quotes[currentQuoteIndex]}</p>
         <button
