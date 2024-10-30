@@ -118,7 +118,7 @@ const QuoteBox = () => {
         </button>
       </div>
       <div className="relative p-4">
-        <div className="bg-gray-700 rounded-t-xl p-4 pl-36 mb-2 relative">
+        
           <div className="text-white font-bold text-lg">{songsList[currentSong].artist}</div>
           <div className="text-gray-400 text-sm my-1">{songsList[currentSong].name}</div>
           <div ref={progressBarRef} className="w-full h-1 bg-gray-600 rounded-full cursor-pointer" onClick={seek}>
@@ -127,7 +127,7 @@ const QuoteBox = () => {
           <div className="text-gray-400 text-sm mt-2">
             {formatTime(song.current.currentTime)} - {formatTime(song.current.duration)}
           </div>
-        </div>
+        
 
         <div className="flex justify-center items-center">
           <div
