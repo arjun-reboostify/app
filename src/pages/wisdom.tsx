@@ -1,82 +1,109 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import soundFile from './x/b.mp3'; // Import the MP3 file for quote
-import song1 from './x/memory.mp3'; // Import other MP3 files for music player
-import song2 from './x/fainted.mp3';
-import winter from './music/winter.mp3';
-import p from './music/a.mp3';
+import track1 from '../pages/x/fainted.mp3';
+import musicconcentration from '../pages/x/conc.mp3';
+import track2 from '../pages/x/memory.mp3';
+import coverImage from '../components/i.jpg'; // Assuming the cover image is the same for all tracks
+
+const songsList = [
+  { name: "hans zimmer", artist: 'interstellar theme', src: musicconcentration, cover: coverImage },
+  { name: "narvent", artist: 'Fainted', src: track1, cover: coverImage },
+  { name: "narvent", artist: 'Memory Reboot', src: track2, cover: coverImage },
+  { name: "", artist: 'fainted', src: track2, cover: coverImage },
+  // Add other tracks here...
+];
 
 const QuoteBox = () => {
-  // List of quotes
   const quotes = [
     "Don't explain your philosophy. Embody it",
     "It is not the man who has too little, but the man who craves more, that is poor",
     "The best revenge is to be unlike him who performed the injury",
-    "You are a little soul carrying around a corpse.",
-    "We suffer more often in imagination than in reality.",
-    "No man is free who is not a master of himself",
-    "Don't watch the clock; do what it does. Keep going.",
-    "Your time is limited, so don't waste it living someone else's life.",
-    "Do not waste time on what you cannot control",
-    "The universe is change; our life is what our thoughts make it",
-    "Wealth consists not in having great possessions, but in having few wants",
-    "It's not what happens to you, but how you react to it that matters.",
-    "You have power over your mind—not outside events. Realize this, and you will find strength",
-    "Waste no more time arguing about what a good man should be. Be one",
-    "If you want to be great, you have to be willing to be misunderstood",
-    "Suffering is the true test of life.",
-    "You are not going to find your greatness in your comfort zone.",
+    // ... Add more quotes as needed
   ];
 
-  // List of songs
-  const songs = [
-    { title: "Memory Reboot", file: song1 },
-   
-    { title: "Fainted", file: song2 },
-    { title: "Captain America Winter Soldier theme", file: winter },
-    { title: "Pangura Ban", file: p },
-  ];
-
-  // State for quotes, music player, and audio
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
-  const [currentSongIndex, setCurrentSongIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef(new Audio(songs[0].file));
+  const [currentSong, setCurrentSong] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [loop, setLoop] = useState(false); // State for loop functionality
+  const song = useRef(new Audio(songsList[currentSong].src));
+  const progressBarRef = useRef<HTMLDivElement>(null);
 
-  // Function to show the next quote and play sound
+  useEffect(() => {
+    loadSong(currentSong);
+    song.current.addEventListener('timeupdate', updateProgress);
+    song.current.addEventListener('ended', handleSongEnd);
+
+    return () => {
+      song.current.removeEventListener('timeupdate', updateProgress);
+      song.current.removeEventListener('ended', handleSongEnd);
+    };
+  }, [currentSong]);
+
+  const loadSong = (index: number) => {
+    song.current.src = songsList[index].src;
+    setPlaying(false);
+    setProgress(0);
+  };
+
+  const updateProgress = () => {
+    if (song.current.duration) {
+      setProgress((song.current.currentTime / song.current.duration) * 100);
+    }
+  };
+
+  const togglePlayPause = () => {
+    if (playing) {
+      song.current.pause();
+    } else {
+      song.current.play();
+    }
+    setPlaying(!playing);
+  };
+
+  const handleSongEnd = () => {
+    if (loop) {
+      song.current.currentTime = 0; // Reset to the beginning of the song
+      song.current.play(); // Play the song again
+    } else {
+      nextSong(); // Move to the next song
+    }
+  };
+
+  const nextSong = () => {
+    setCurrentSong((currentSong + 1) % songsList.length);
+    song.current.play(); // Autoplay the next song
+  };
+
+  const prevSong = () => {
+    setCurrentSong((currentSong - 1 + songsList.length) % songsList.length);
+    song.current.play(); // Autoplay the previous song
+  };
+
+  const seek = (e: React.MouseEvent) => {
+    const rect = progressBarRef.current?.getBoundingClientRect();
+    if (rect) {
+      const pos = ((e.clientX - rect.left) / rect.width) * song.current.duration;
+      song.current.currentTime = pos;
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  // Function to toggle loop
+  const toggleLoop = () => {
+    setLoop(!loop);
+    song.current.loop = !loop; // Update the audio element's loop property
+  };
+
   const showNextQuote = () => {
     setCurrentQuoteIndex((prevIndex) => (prevIndex + 1) % quotes.length);
-
-    // Play the quote sound
     const quoteAudio = new Audio(soundFile);
     quoteAudio.play();
-  };
-
-  // Function to toggle play/pause for music
-  const togglePlayPause = () => {
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  // Function to play the next song
-  const playNextSong = () => {
-    const nextIndex = (currentSongIndex + 1) % songs.length;
-    setCurrentSongIndex(nextIndex);
-    audioRef.current.src = songs[nextIndex].file;
-    audioRef.current.play();
-    setIsPlaying(true);
-  };
-
-  // Function to play the previous song
-  const playPreviousSong = () => {
-    const prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-    setCurrentSongIndex(prevIndex);
-    audioRef.current.src = songs[prevIndex].file;
-    audioRef.current.play();
-    setIsPlaying(true);
   };
 
   return (
@@ -90,28 +117,54 @@ const QuoteBox = () => {
           Show Next Quote
         </button>
       </div>
-      
-      <div className="bg-black p-6 rounded-lg shadow-md w-80 text-center">
-        <h2 className="text-white mb-4">{songs[currentSongIndex].title}</h2>
-        <div className="mb-4">
-          <button
-            className="bg-green-500 text-black px-4 py-2 rounded hover:bg-green-600 transition-colors mr-2"
-            onClick={playPreviousSong}
+      <div className="relative p-4">
+        <div className="bg-gray-700 rounded-t-xl p-4 pl-36 mb-2 relative">
+          <div className="text-white font-bold text-lg">{songsList[currentSong].artist}</div>
+          <div className="text-gray-400 text-sm my-1">{songsList[currentSong].name}</div>
+          <div ref={progressBarRef} className="w-full h-1 bg-gray-600 rounded-full cursor-pointer" onClick={seek}>
+            <div className="bg-green-500 h-1 rounded-full" style={{ width: `${progress}%` }}></div>
+          </div>
+          <div className="text-gray-400 text-sm mt-2">
+            {formatTime(song.current.currentTime)} - {formatTime(song.current.duration)}
+          </div>
+        </div>
+
+        <div className="flex justify-center items-center">
+          <div
+            className={`w-36 h-36 bg-cover bg-center rounded-full border-4 border-black shadow-lg ${
+              playing ? 'animate-spin' : ''
+            }`}
+            style={{ backgroundImage: `url(${songsList[currentSong].cover})` }}
+          ></div>
+        </div>
+
+        <div className="flex justify-center items-center gap-4 bg-gray-800 mt-4 rounded-xl p-4 shadow-lg">
+          <span
+            onClick={prevSong}
+            className="text-red-500 text-3xl cursor-pointer hover:text-white transition-colors"
           >
-            Previous
-          </button>
-          <button
-            className="bg-green-500 text-black px-4 py-2 rounded hover:bg-green-600 transition-colors"
+            ⏮️
+          </span>
+          <span
             onClick={togglePlayPause}
+            className={`text-3xl cursor-pointer text-teal-500 bg-blue-700 p-4 rounded-full hover:bg-green-700 transition-colors`}
           >
-            Play/Pause
-          </button>
-          <button
-            className="bg-green-500 text-black px-4 py-2 rounded hover:bg-green-600 transition-colors ml-2"
-            onClick={playNextSong}
+            {playing ? '⏸️' : '▶️'}
+          </span>
+          <span
+            onClick={nextSong}
+            className="text-red-500 text-3xl cursor-pointer hover:text-white transition-colors"
           >
-            Next
-          </button>
+            ⏭️
+          </span>
+          
+          {/* Loop Button with circular background */}
+          <div
+            onClick={toggleLoop}
+            className={`w-12 h-12 flex items-center justify-center rounded-full transition-colors ${loop ? 'bg-yellow-500' : 'bg-black'}`}
+          >
+            <span className="text-2xl cursor-pointer text-white">🔁</span>
+          </div>
         </div>
       </div>
     </div>
