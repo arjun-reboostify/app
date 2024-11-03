@@ -47,3 +47,25 @@ export default {
     plugins: [],
     darkMode: "class",
 };
+// tailwind.config.js
+module.exports = {
+    content: [
+      './src/**/*.{js,jsx,ts,tsx,html}', // Adjust paths based on your project structure
+    ],
+    theme: {
+      extend: {
+        animation: {
+          'spin-slow': 'spin 3s linear infinite',
+          'spin-fast': 'spin 1s linear infinite',
+        },
+        keyframes: {
+          spin: {
+            '0%': { transform: 'rotate(0deg)' },
+            '100%': { transform: 'rotate(360deg)' },
+          },
+        },
+      },
+    },
+    plugins: [],
+  };
+  
