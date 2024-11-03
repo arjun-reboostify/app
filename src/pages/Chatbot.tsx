@@ -1,21 +1,24 @@
-import { useState, useEffect, useRef } from 'react';
+const React = require('react');
+const { useState, useEffect, useRef } = React;
 
-interface Message {
-  id: number;
-  text: string;
-  isUser: boolean;
-}
+/**
+ * @typedef {Object} Message
+ * @property {number} id
+ * @property {string} text
+ * @property {boolean} isUser
+ */
 
-interface SentenceScore {
-  text: string;
-  score: number;
-}
+/**
+ * @typedef {Object} SentenceScore
+ * @property {string} text
+ * @property {number} score
+ */
 
 const SmartChatBot = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState<string>('');
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const messagesEndRef = useRef(null);
 
   // List of common words to ignore
   const stopWords = new Set([
@@ -45,31 +48,30 @@ const SmartChatBot = () => {
     "Artificial intelligence models process large datasets efficiently."
   ];
 
-  const extractMeaningfulWords = (text: string): string[] => {
+  const extractMeaningfulWords = (text) => {
     return text
       .toLowerCase()
-      .replace(/[.,!?]/g, '') // Remove punctuation
+      .replace(/[.,!?]/g, '')
       .split(' ')
       .filter(word => 
-        word.length > 2 && // Ignore very short words
-        !stopWords.has(word) && // Ignore common stop words
-        !/^\d+$/.test(word) // Ignore numbers
+        word.length > 2 &&
+        !stopWords.has(word) &&
+        !/^\d+$/.test(word)
       );
   };
 
-  const findBestMatches = (userInput: string): string[] => {
+  const findBestMatches = (userInput) => {
     const userWords = extractMeaningfulWords(userInput);
     
     if (userWords.length === 0) {
       return ["Could you please provide more specific terms about what you'd like to discuss?"];
     }
 
-    const scoredResponses: SentenceScore[] = responseDatabase.map(response => {
+    const scoredResponses = responseDatabase.map(response => {
       const responseWords = extractMeaningfulWords(response);
       let matchScore = 0;
-      let matchedWords = new Set<string>();
+      let matchedWords = new Set();
       
-      // Score based on matching meaningful words
       userWords.forEach(userWord => {
         responseWords.forEach(responseWord => {
           if (
@@ -88,36 +90,30 @@ const SmartChatBot = () => {
       };
     });
 
-    // Sort by score in descending order
     scoredResponses.sort((a, b) => b.score - a.score);
 
-    // If no good matches found
     if (scoredResponses[0].score === 0) {
       return ["I don't have enough information about that topic. Could you try different terms?"];
     }
 
-    // Get the highest score
     const highestScore = scoredResponses[0].score;
 
-    // Return all responses that have the highest score
-    const bestMatches = scoredResponses
+    return scoredResponses
       .filter(response => response.score === highestScore)
       .map(response => response.text);
-
-    return bestMatches;
   };
 
   const handleSend = () => {
     if (input.trim() === '') return;
 
-    const userMessage: Message = {
+    const userMessage = {
       id: Date.now(),
       text: input,
       isUser: true,
     };
 
     const botResponses = findBestMatches(input);
-    const newMessages: Message[] = [userMessage];
+    const newMessages = [userMessage];
 
     botResponses.forEach((response, index) => {
       newMessages.push({
@@ -146,7 +142,7 @@ const SmartChatBot = () => {
   }, [messages]);
 
   return (
-    <div className="fixed bottom-4 left-4">
+    <div className="fixed bottom-4 right-4">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none"
@@ -155,7 +151,7 @@ const SmartChatBot = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-16 left-0 w-96 bg-black rounded-lg shadow-xl">
+        <div className="absolute bottom-16 right-0 w-96 bg-white rounded-lg shadow-xl">
           <div className="h-96 flex flex-col">
             <div className="flex-1 overflow-y-auto p-4">
               {messages.map((message) => (
@@ -203,4 +199,4 @@ const SmartChatBot = () => {
   );
 };
 
-export default SmartChatBot;
+module.exports = SmartChatBot;
