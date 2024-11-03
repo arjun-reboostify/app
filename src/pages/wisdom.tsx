@@ -131,7 +131,7 @@ const QuoteBox = () => {
 
         <div className="flex justify-center items-center">
         <div
-      className={`w-36 h-36 bg-cover bg-center rounded-full border-4 border-black shadow-lg [animation-duration:4s] ${
+      className={`w-36 h-36 bg-cover bg-center rounded-full border-4 border-black shadow-lg [animation-duration:10s] ${
         playing ? 'animate-spin' : ''
       }`}
       style={{ backgroundImage: `url(${songsList[currentSong].cover})` }}
