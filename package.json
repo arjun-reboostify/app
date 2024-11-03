@@ -3,9 +3,7 @@
   "private": true,
   "version": "0.0.0",
   
-    "type": "module",
-    // ... rest of your package.json
-  
+  "type": "module",
  
   "scripts": {
     "dev": "vite",
