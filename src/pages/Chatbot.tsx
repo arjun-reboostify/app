@@ -1,24 +1,21 @@
-const React = require('react');
-const { useState, useEffect, useRef } = React;
+import React, { useState, useEffect, useRef } from 'react';
 
-/**
- * @typedef {Object} Message
- * @property {number} id
- * @property {string} text
- * @property {boolean} isUser
- */
+interface Message {
+  id: number;
+  text: string;
+  isUser: boolean;
+}
 
-/**
- * @typedef {Object} SentenceScore
- * @property {string} text
- * @property {number} score
- */
+interface SentenceScore {
+  text: string;
+  score: number;
+}
 
-const SmartChatBot = () => {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  const messagesEndRef = useRef(null);
+const SmartChatBot: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState<string>('');
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // List of common words to ignore
   const stopWords = new Set([
@@ -35,7 +32,7 @@ const SmartChatBot = () => {
   ]);
 
   // Database of response sentences
-  const responseDatabase = [
+  const responseDatabase: string[] = [
     "Python programming language offers great data analysis capabilities.",
     "JavaScript frameworks enable interactive web development.",
     "Machine learning algorithms require substantial computing power.",
@@ -48,32 +45,32 @@ const SmartChatBot = () => {
     "Artificial intelligence models process large datasets efficiently."
   ];
 
-  const extractMeaningfulWords = (text) => {
+  const extractMeaningfulWords = (text: string): string[] => {
     return text
       .toLowerCase()
       .replace(/[.,!?]/g, '')
       .split(' ')
-      .filter(word => 
+      .filter((word: string) => 
         word.length > 2 &&
         !stopWords.has(word) &&
         !/^\d+$/.test(word)
       );
   };
 
-  const findBestMatches = (userInput) => {
+  const findBestMatches = (userInput: string): string[] => {
     const userWords = extractMeaningfulWords(userInput);
     
     if (userWords.length === 0) {
       return ["Could you please provide more specific terms about what you'd like to discuss?"];
     }
 
-    const scoredResponses = responseDatabase.map(response => {
+    const scoredResponses: SentenceScore[] = responseDatabase.map(response => {
       const responseWords = extractMeaningfulWords(response);
       let matchScore = 0;
-      let matchedWords = new Set();
+      const matchedWords = new Set<string>();
       
-      userWords.forEach(userWord => {
-        responseWords.forEach(responseWord => {
+      userWords.forEach((userWord: string) => {
+        responseWords.forEach((responseWord: string) => {
           if (
             (responseWord.includes(userWord) || userWord.includes(responseWord)) &&
             !matchedWords.has(responseWord)
@@ -103,19 +100,19 @@ const SmartChatBot = () => {
       .map(response => response.text);
   };
 
-  const handleSend = () => {
+  const handleSend = (): void => {
     if (input.trim() === '') return;
 
-    const userMessage = {
+    const userMessage: Message = {
       id: Date.now(),
       text: input,
       isUser: true,
     };
 
     const botResponses = findBestMatches(input);
-    const newMessages = [userMessage];
+    const newMessages: Message[] = [userMessage];
 
-    botResponses.forEach((response, index) => {
+    botResponses.forEach((response: string, index: number) => {
       newMessages.push({
         id: Date.now() + index + 1,
         text: response,
@@ -123,7 +120,7 @@ const SmartChatBot = () => {
       });
     });
 
-    setMessages(prev => [...prev, ...newMessages]);
+    setMessages((prev: Message[]) => [...prev, ...newMessages]);
     setInput('');
   };
 
@@ -154,7 +151,7 @@ const SmartChatBot = () => {
         <div className="absolute bottom-16 right-0 w-96 bg-white rounded-lg shadow-xl">
           <div className="h-96 flex flex-col">
             <div className="flex-1 overflow-y-auto p-4">
-              {messages.map((message) => (
+              {messages.map((message: Message) => (
                 <div
                   key={message.id}
                   className={`mb-2 p-3 rounded-lg max-w-[85%] ${
@@ -164,9 +161,9 @@ const SmartChatBot = () => {
                   }`}
                 >
                   {message.text}
-                  {!message.isUser && messages.filter(m => !m.isUser).length > 1 && (
+                  {!message.isUser && messages.filter((m: Message) => !m.isUser).length > 1 && (
                     <div className="text-xs text-gray-500 mt-1">
-                      Match {messages.filter(m => !m.isUser).indexOf(message) + 1}
+                      Match {messages.filter((m: Message) => !m.isUser).indexOf(message) + 1}
                     </div>
                   )}
                 </div>
@@ -179,8 +176,8 @@ const SmartChatBot = () => {
                 <input
                   type="text"
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && handleSend()}
                   className="flex-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Type a message..."
                 />
@@ -199,4 +196,4 @@ const SmartChatBot = () => {
   );
 };
 
-module.exports = SmartChatBot;
+export default SmartChatBot;
