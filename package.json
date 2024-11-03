@@ -2,6 +2,10 @@
   "name": "client",
   "private": true,
   "version": "0.0.0",
+  
+    "type": "module",
+    // ... rest of your package.json
+  
  
   "scripts": {
     "dev": "vite",
