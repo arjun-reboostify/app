@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface Message {
   id: number;
@@ -11,7 +11,7 @@ interface SentenceScore {
   score: number;
 }
 
-const SmartChatBot: React.FC = () => {
+const SmartChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>('');
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -32,7 +32,7 @@ const SmartChatBot: React.FC = () => {
   ]);
 
   // Database of response sentences
-  const responseDatabase: string[] = [
+  const responseDatabase = [
     "Python programming language offers great data analysis capabilities.",
     "JavaScript frameworks enable interactive web development.",
     "Machine learning algorithms require substantial computing power.",
@@ -48,12 +48,12 @@ const SmartChatBot: React.FC = () => {
   const extractMeaningfulWords = (text: string): string[] => {
     return text
       .toLowerCase()
-      .replace(/[.,!?]/g, '')
+      .replace(/[.,!?]/g, '') // Remove punctuation
       .split(' ')
-      .filter((word: string) => 
-        word.length > 2 &&
-        !stopWords.has(word) &&
-        !/^\d+$/.test(word)
+      .filter(word => 
+        word.length > 2 && // Ignore very short words
+        !stopWords.has(word) && // Ignore common stop words
+        !/^\d+$/.test(word) // Ignore numbers
       );
   };
 
@@ -67,10 +67,11 @@ const SmartChatBot: React.FC = () => {
     const scoredResponses: SentenceScore[] = responseDatabase.map(response => {
       const responseWords = extractMeaningfulWords(response);
       let matchScore = 0;
-      const matchedWords = new Set<string>();
+      let matchedWords = new Set<string>();
       
-      userWords.forEach((userWord: string) => {
-        responseWords.forEach((responseWord: string) => {
+      // Score based on matching meaningful words
+      userWords.forEach(userWord => {
+        responseWords.forEach(responseWord => {
           if (
             (responseWord.includes(userWord) || userWord.includes(responseWord)) &&
             !matchedWords.has(responseWord)
@@ -87,20 +88,26 @@ const SmartChatBot: React.FC = () => {
       };
     });
 
+    // Sort by score in descending order
     scoredResponses.sort((a, b) => b.score - a.score);
 
+    // If no good matches found
     if (scoredResponses[0].score === 0) {
       return ["I don't have enough information about that topic. Could you try different terms?"];
     }
 
+    // Get the highest score
     const highestScore = scoredResponses[0].score;
 
-    return scoredResponses
+    // Return all responses that have the highest score
+    const bestMatches = scoredResponses
       .filter(response => response.score === highestScore)
       .map(response => response.text);
+
+    return bestMatches;
   };
 
-  const handleSend = (): void => {
+  const handleSend = () => {
     if (input.trim() === '') return;
 
     const userMessage: Message = {
@@ -112,7 +119,7 @@ const SmartChatBot: React.FC = () => {
     const botResponses = findBestMatches(input);
     const newMessages: Message[] = [userMessage];
 
-    botResponses.forEach((response: string, index: number) => {
+    botResponses.forEach((response, index) => {
       newMessages.push({
         id: Date.now() + index + 1,
         text: response,
@@ -120,7 +127,7 @@ const SmartChatBot: React.FC = () => {
       });
     });
 
-    setMessages((prev: Message[]) => [...prev, ...newMessages]);
+    setMessages(prev => [...prev, ...newMessages]);
     setInput('');
   };
 
@@ -151,7 +158,7 @@ const SmartChatBot: React.FC = () => {
         <div className="absolute bottom-16 right-0 w-96 bg-white rounded-lg shadow-xl">
           <div className="h-96 flex flex-col">
             <div className="flex-1 overflow-y-auto p-4">
-              {messages.map((message: Message) => (
+              {messages.map((message) => (
                 <div
                   key={message.id}
                   className={`mb-2 p-3 rounded-lg max-w-[85%] ${
@@ -161,9 +168,9 @@ const SmartChatBot: React.FC = () => {
                   }`}
                 >
                   {message.text}
-                  {!message.isUser && messages.filter((m: Message) => !m.isUser).length > 1 && (
+                  {!message.isUser && messages.filter(m => !m.isUser).length > 1 && (
                     <div className="text-xs text-gray-500 mt-1">
-                      Match {messages.filter((m: Message) => !m.isUser).indexOf(message) + 1}
+                      Match {messages.filter(m => !m.isUser).indexOf(message) + 1}
                     </div>
                   )}
                 </div>
@@ -176,8 +183,8 @@ const SmartChatBot: React.FC = () => {
                 <input
                   type="text"
                   value={input}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
-                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && handleSend()}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   className="flex-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Type a message..."
                 />
